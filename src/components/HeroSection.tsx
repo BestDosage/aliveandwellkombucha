@@ -121,7 +121,7 @@ export default function HeroSection() {
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[1400px] flex-col items-center lg:flex-row">
         {/* Left — text */}
-        <div className="flex flex-1 flex-col items-center justify-center px-6 pt-24 sm:px-8 sm:pt-28 lg:items-start lg:pl-16 lg:pr-0 lg:pt-0 xl:pl-20">
+        <div className="flex shrink-0 flex-col items-center justify-center px-6 pt-20 sm:px-8 sm:pt-28 lg:flex-1 lg:items-start lg:pl-16 lg:pr-0 lg:pt-0 xl:pl-20">
           <h1 className="text-center font-heading leading-[1.05] tracking-[-0.02em] text-charcoal lg:text-left" style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}>
             <TextRevealCSS delay={0.1}>Feeling Good</TextRevealCSS>
             <br />
@@ -159,7 +159,7 @@ export default function HeroSection() {
                 alt="Alive & Well Kombucha — Palo Santo"
                 width={500}
                 height={700}
-                className="h-[40vh] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] sm:h-[55vh] md:h-[65vh] lg:h-[72vh]"
+                className="h-[50vh] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] sm:h-[55vh] md:h-[65vh] lg:h-[72vh]"
                 priority
                 fetchPriority="high"
                 sizes="(max-width: 640px) 60vw, (max-width: 1024px) 45vw, 35vw"
