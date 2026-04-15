@@ -1,71 +1,60 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { TextReveal } from "@/components/ui/text-reveal";
 
-/* Orbiting botanical elements around the can */
+/* CSS-only orbiting botanicals — no framer-motion, no hydration cost */
 function OrbitingBotanicals() {
   return (
     <div className="absolute inset-[-45%] pointer-events-none">
       {/* Orbit 1 — slow, large */}
-      <motion.div
-        className="absolute inset-[8%]"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-      >
+      <div className="absolute inset-[8%] orbit-cw-slow">
         <Leaf x="50%" y="0%" size={28} color="#8BA888" rotation={-25} />
         <Leaf x="100%" y="50%" size={22} color="#B5CDB2" rotation={50} />
         <Petal x="0%" y="55%" size={18} color="#D4A5A5" rotation={-50} />
         <Petal x="55%" y="100%" size={16} color="#E8A87C" rotation={20} />
-      </motion.div>
+      </div>
 
       {/* Orbit 2 — medium, reverse */}
-      <motion.div
-        className="absolute inset-[22%]"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      >
+      <div className="absolute inset-[22%] orbit-ccw-medium">
         <Leaf x="10%" y="80%" size={20} color="#5E7D5B" rotation={-40} />
         <Petal x="88%" y="12%" size={16} color="#9B8EC4" rotation={35} />
         <Bubble x="92%" y="72%" size={10} />
         <Bubble x="12%" y="18%" size={8} />
-      </motion.div>
+      </div>
 
       {/* Orbit 3 — fast, inner */}
-      <motion.div
-        className="absolute inset-[34%]"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-      >
+      <div className="absolute inset-[34%] orbit-cw-fast">
         <Sparkle x="85%" y="8%" size={10} />
         <Sparkle x="8%" y="75%" size={8} />
         <Bubble x="88%" y="60%" size={6} />
-      </motion.div>
+      </div>
 
-      {/* Independent floaters */}
+      {/* Independent floaters — CSS animation */}
       {[
-        { x: "3%", y: "12%", size: 30, color: "#B5CDB2", rot: -15, dur: 6 },
-        { x: "92%", y: "18%", size: 24, color: "#D4A5A5", rot: 35, dur: 7 },
-        { x: "90%", y: "78%", size: 26, color: "#C4A882", rot: -10, dur: 5.5 },
-        { x: "6%", y: "82%", size: 22, color: "#8BA888", rot: 55, dur: 7.5 },
+        { x: "3%", y: "12%", size: 30, color: "#B5CDB2", rot: -15, dur: "6s", delay: "0s" },
+        { x: "92%", y: "18%", size: 24, color: "#D4A5A5", rot: 35, dur: "7s", delay: "0.7s" },
+        { x: "90%", y: "78%", size: 26, color: "#C4A882", rot: -10, dur: "5.5s", delay: "1.4s" },
+        { x: "6%", y: "82%", size: 22, color: "#8BA888", rot: 55, dur: "7.5s", delay: "2.1s" },
       ].map((f, i) => (
-        <motion.div
+        <div
           key={i}
-          className="absolute"
-          style={{ left: f.x, top: f.y }}
-          animate={{ y: [-8, 8, -8], rotate: [f.rot - 5, f.rot + 5, f.rot - 5] }}
-          transition={{ duration: f.dur, repeat: Infinity, ease: "easeInOut", delay: i * 0.7 }}
+          className="absolute gentle-float"
+          style={{
+            left: f.x,
+            top: f.y,
+            "--base-rot": `${f.rot}deg`,
+            "--float-dur": f.dur,
+            "--float-delay": f.delay,
+          } as React.CSSProperties}
         >
           {i % 2 === 0 ? (
             <Leaf size={f.size} color={f.color} rotation={f.rot} />
           ) : (
             <Petal size={f.size} color={f.color} rotation={f.rot} />
           )}
-        </motion.div>
+        </div>
       ))}
     </div>
   );
@@ -104,101 +93,91 @@ function Sparkle({ x, y, size }: { x?: string; y?: string; size: number }) {
   );
 }
 
-export default function HeroSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [hasLoaded, setHasLoaded] = useState(false);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const canX = useSpring(mouseX, { stiffness: 50, damping: 25, mass: 1 });
-  const canY = useSpring(mouseY, { stiffness: 50, damping: 25, mass: 1 });
-
-  useEffect(() => {
-    const timer = setTimeout(() => setHasLoaded(true), 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!sectionRef.current) return;
-      const rect = sectionRef.current.getBoundingClientRect();
-      mouseX.set((e.clientX - rect.left - rect.width / 2) * 0.06);
-      mouseY.set((e.clientY - rect.top - rect.height / 2) * 0.06);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
-
+/* CSS text reveal — word-by-word with stagger via animation-delay */
+function TextRevealCSS({ children, delay = 0 }: { children: string; delay?: number }) {
+  const words = children.split(" ");
   return (
-    <section ref={sectionRef} className="relative flex h-screen w-full overflow-hidden">
+    <span className="inline">
+      {words.map((word, i) => (
+        <span key={i} className="inline-block overflow-hidden pb-[0.15em] pt-[0.05em]">
+          <span
+            className="text-reveal-word inline-block"
+            style={{ animationDelay: `${delay + i * 0.08}s` }}
+          >
+            {word}
+          </span>
+          {i < words.length - 1 && "\u00A0"}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+export default function HeroSection() {
+  return (
+    <section className="relative flex h-screen w-full overflow-hidden">
       {/* Gradient */}
       <div className="absolute inset-0 -z-10" style={{ background: "linear-gradient(121deg, #8BA888 -20%, #B5CDB2 20%, #F5D0B5 50%, #D4CCE8 80%, #FBF7F0 120%)", backgroundSize: "200% 200%", animation: "hero-gradient 12s ease infinite" }} />
 
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[1400px] flex-col items-center lg:flex-row">
-        {/* Left — text with TextReveal */}
-        <div className="flex flex-1 flex-col items-center justify-center px-8 pt-28 lg:items-start lg:pl-16 lg:pr-0 lg:pt-0 xl:pl-20">
-          <h1 className="text-center font-heading leading-[1.05] tracking-[-0.02em] text-charcoal lg:text-left" style={{ fontSize: "clamp(3rem, 6vw, 5.5rem)" }}>
-            <TextReveal delay={0.1}>Feeling Good</TextReveal>
+        {/* Left — text */}
+        <div className="flex flex-1 flex-col items-center justify-center px-6 pt-24 sm:px-8 sm:pt-28 lg:items-start lg:pl-16 lg:pr-0 lg:pt-0 xl:pl-20">
+          <h1 className="text-center font-heading leading-[1.05] tracking-[-0.02em] text-charcoal lg:text-left" style={{ fontSize: "clamp(2.5rem, 6vw, 5.5rem)" }}>
+            <TextRevealCSS delay={0.1}>Feeling Good</TextRevealCSS>
             <br />
-            <TextReveal delay={0.25}>Should Taste</TextReveal>
+            <TextRevealCSS delay={0.25}>Should Taste</TextRevealCSS>
             <br />
-            <TextReveal delay={0.4}>Amazing</TextReveal>
+            <TextRevealCSS delay={0.4}>Amazing</TextRevealCSS>
           </h1>
 
-          <motion.p
-            className="mt-7 max-w-[400px] text-center text-[15px] leading-[1.7] text-charcoal/60 lg:text-left"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
+          <p
+            className="mt-5 max-w-[400px] text-center text-[15px] leading-[1.7] text-charcoal/60 lg:text-left opacity-0"
+            style={{ animation: "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.7s forwards" }}
           >
             Small-batch, handcrafted kombucha from Dallas, TX — crafted with botanical infusions for your gut, brain &amp; soul.
-          </motion.p>
+          </p>
 
-          <motion.div
-            className="mt-9 flex flex-wrap items-center justify-center gap-4 lg:justify-start"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          <div
+            className="mt-7 flex flex-wrap items-center justify-center gap-4 lg:justify-start opacity-0 sm:mt-9"
+            style={{ animation: "fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.9s forwards" }}
           >
             <ShinyButton href="#products" variant="primary">Shop Now</ShinyButton>
             <ShinyButton href="#story" variant="outline">Our Story</ShinyButton>
-          </motion.div>
+          </div>
         </div>
 
         {/* Right — can with orbiting botanicals */}
         <div className="relative flex flex-1 items-center justify-center">
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          <div
+            className="relative opacity-0"
+            style={{ animation: "scaleIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.2s forwards" }}
           >
             <OrbitingBotanicals />
-            <motion.div className="relative z-10 pointer-events-none" style={hasLoaded ? { x: canX, y: canY } : undefined}>
+            <div className="relative z-10 pointer-events-none">
               <Image
                 src="/images/can-palo-santo.png"
                 alt="Alive & Well Kombucha — Palo Santo"
                 width={500}
                 height={700}
-                className="h-[45vh] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] sm:h-[55vh] md:h-[65vh] lg:h-[72vh]"
+                className="h-[40vh] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] sm:h-[55vh] md:h-[65vh] lg:h-[72vh]"
                 priority
+                fetchPriority="high"
+                sizes="(max-width: 640px) 60vw, (max-width: 1024px) 45vw, 35vw"
               />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.6 }}
+      <div
+        className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 opacity-0 sm:bottom-8"
+        style={{ animation: "fadeIn 0.6s ease 1.2s forwards" }}
       >
-        <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
+        <div className="animate-float">
           <ChevronDown className="h-5 w-5 text-charcoal/30" />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

@@ -309,14 +309,14 @@ export default function FindUsSection() {
         </div>
 
         {/* Map + list side by side */}
-        <div className="flex flex-col lg:flex-row gap-4 h-[600px]">
+        <div className="flex flex-col lg:flex-row gap-4 lg:h-[600px]">
           {/* Leaflet Map */}
-          <div className="flex-1 rounded-2xl overflow-hidden border border-sage/10 shadow-sm">
+          <div className="h-[300px] sm:h-[400px] lg:h-auto flex-1 rounded-2xl overflow-hidden border border-sage/10 shadow-sm">
             <LocationMap locations={filtered} />
           </div>
 
           {/* Scrollable list */}
-          <div className="w-full lg:w-[320px] flex flex-col rounded-2xl border border-sage/10 bg-cream/50 overflow-hidden">
+          <div className="w-full lg:w-[320px] h-[300px] sm:h-[350px] lg:h-auto flex flex-col rounded-2xl border border-sage/10 bg-cream/50 overflow-hidden">
             <div className="px-4 py-3 border-b border-sage/10 bg-white">
               <p className="text-xs font-medium text-muted-foreground">
                 {filtered.length} locations

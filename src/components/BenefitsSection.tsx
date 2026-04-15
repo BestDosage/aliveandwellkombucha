@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { SparklesCore } from "@/components/ui/sparkles";
 
 const PREMIUM_EASE = [0.83, 0, 0.17, 1] as const;
 
@@ -302,18 +301,24 @@ export default function BenefitsSection() {
         }
       `}</style>
 
-      {/* Ambient particles */}
-      <div className="absolute inset-0 z-0">
-        <SparklesCore
-          id="benefits-sparkles"
-          background="transparent"
-          minSize={0.4}
-          maxSize={1.4}
-          particleDensity={40}
-          className="h-full w-full"
-          particleColor="#8BA888"
-          speed={0.5}
-        />
+      {/* Ambient CSS dots — replaces tsparticles */}
+      <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        {Array.from({ length: 18 }).map((_, i) => (
+          <div
+            key={i}
+            className="ambient-dot"
+            style={{
+              "--dot-color": i % 3 === 0 ? "#8BA888" : i % 3 === 1 ? "#B5CDB2" : "#5E7D5B",
+              "--dot-size": `${2 + (i % 4)}px`,
+              "--dx": `${(i % 2 === 0 ? 1 : -1) * (15 + i * 3)}px`,
+              "--dy": `${(i % 2 === 0 ? -1 : 1) * (20 + i * 2)}px`,
+              "--drift-dur": `${6 + (i % 5) * 2}s`,
+              "--drift-delay": `${i * 0.4}s`,
+              top: `${5 + (i * 5.2) % 90}%`,
+              left: `${3 + (i * 7.3) % 94}%`,
+            } as React.CSSProperties}
+          />
+        ))}
       </div>
 
       {/* Decorative botanical silhouette */}

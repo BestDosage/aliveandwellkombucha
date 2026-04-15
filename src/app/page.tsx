@@ -10,12 +10,9 @@ import FindUsSection from "@/components/FindUsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
-import SmoothScroll from "@/components/SmoothScroll";
-
 export default function Home() {
   return (
     <>
-      <SmoothScroll />
       <Navigation />
       <main className="relative">
         <HeroSection />

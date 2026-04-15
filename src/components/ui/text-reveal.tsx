@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface TextRevealProps {
@@ -10,6 +7,7 @@ interface TextRevealProps {
   staggerDelay?: number;
 }
 
+/** CSS-only text reveal — no "use client", no framer-motion */
 export function TextReveal({
   children,
   className,
@@ -22,18 +20,12 @@ export function TextReveal({
     <span className={cn("inline", className)}>
       {words.map((word, i) => (
         <span key={i} className="inline-block overflow-hidden pb-[0.15em] pt-[0.05em]">
-          <motion.span
-            className="inline-block"
-            initial={{ y: "110%", rotateX: -80 }}
-            animate={{ y: 0, rotateX: 0 }}
-            transition={{
-              duration: 0.7,
-              delay: delay + i * staggerDelay,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+          <span
+            className="text-reveal-word inline-block"
+            style={{ animationDelay: `${delay + i * staggerDelay}s` }}
           >
             {word}
-          </motion.span>
+          </span>
           {i < words.length - 1 && "\u00A0"}
         </span>
       ))}
